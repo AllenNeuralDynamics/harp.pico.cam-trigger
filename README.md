@@ -1,7 +1,7 @@
 # Cam Trigger
 A boilerplate Harp device for configuring/playing a PWM signal at a set frequency.
 
-This project contains pre-compiled binaries in the Releases page.
+This project contains pre-compiled binaries in the [Releases](https://github.com/AllenNeuralDynamics/harp.pico.cam-trigger/releases) page.
 Simply upload it to your Raspberry Pi Pico, and that's it!
 
 ## Flashing the Firmware
