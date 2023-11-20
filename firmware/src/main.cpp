@@ -49,8 +49,8 @@ RegSpecs app_reg_specs[reg_count]
 // Create reg handler functions.
 void set_pwm_state(msg_t& msg)
 {
-    const uint8_t& pwm_state = msg.payload_as_uint8();
-    if (pwm_state)
+    app_regs.pwm_state = msg.payload_as_uint8();
+    if (app_regs.pwm_state)
         pwm_.enable_output();
     else
         pwm_.disable_output();
@@ -85,7 +85,7 @@ void app_reset()
 {
     app_regs.pwm_state = 0;
     app_regs.pwm_freq = pwm_.set_frequency(200.0f); // Set a default frequency.
-    app_regs.duty_cycle = pwm_.set_duty_cycle(0.0f);
+    app_regs.duty_cycle = pwm_.set_duty_cycle(0.5f);
     pwm_.disable_output();
 }
 
@@ -111,11 +111,12 @@ HarpCApp& app = HarpCApp::init(who_am_i, hw_version_major, hw_version_minor,
 int main()
 {
 // Init Synchronizer.
-    HarpSynchronizer& sync = HarpSynchronizer::init(uart1, 5);
+    HarpSynchronizer& sync = HarpSynchronizer::init(uart1, SYNC_PIN);
 #ifdef DEBUG
     stdio_uart_init_full(uart0, 921600, 0, -1); // use uart1 tx only.
     printf("Hello, from an RP2040!\r\n");
 #endif
+    app_reset();
     while(true)
     {
         app.run();

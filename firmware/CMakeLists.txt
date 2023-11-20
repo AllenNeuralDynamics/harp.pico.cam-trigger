@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 # Compile for profiling/debugging/etc. Default: none enabled.
-#add_definitions(-DDEBUG)
+add_definitions(-DDEBUG)
 #add_definitions(-DPROFILE_CPU)
 
 # initialize the Raspberry Pi Pico SDK
@@ -45,4 +45,5 @@ if(DEBUG)
     message(WARNING "Debug printf() messages enabled from harp core to UART \
             with baud rate 921600.")
     pico_enable_stdio_uart(${PROJECT_NAME} 1)
+    pico_enable_stdio_uart(pwm 1)
 endif()

@@ -15,7 +15,7 @@ PWM::PWM(uint8_t pwm_pin)
     gpio_channel_ = pwm_gpio_to_channel(pwm_pin_);
 
     // Set period of 100 cycles (0 to 99 inclusive) (reg TOP value).
-    pwm_set_wrap(slice_num_, 99);
+    pwm_set_wrap(slice_num_, PWM_STEP_INCREMENTS - 1);
     // Clear output duty cycle on startup.
     set_duty_cycle(0);
     set_frequency(DEFAULT_PWM_FREQ_HZ); // 200Hz
@@ -46,6 +46,8 @@ float PWM::set_duty_cycle(float normalized_duty_cycle)
 
     // FIXME: divide-by-zero edge case.
     duty_cycle_ = roundf(normalized_duty_cycle * PWM_STEP_INCREMENTS);
+    // FIXME: this will always enable.
+    // Conditionally track state of duty cycle.
     enable_output(); // re-applies the duty cycle.
     return duty_cycle_/PWM_STEP_INCREMENTS;
 }
@@ -53,15 +55,16 @@ float PWM::set_duty_cycle(float normalized_duty_cycle)
 
 float PWM::set_frequency(float freq_hz)
 {
-    uint32_t sys_clk_hz = clock_get_hz(clk_sys);
+    uint32_t sys_clk_hz = 125000000UL;//clock_get_hz(clk_sys);
     // Configure for n[Hz] period broken down into PWM_STEP_INCREMENTS.
     // requested value must be within [0.0, 256.0]
 
     // FIXME: divide-by-zero edge case.
-    float new_freq_div = sys_clk_hz / freq_hz * PWM_STEP_INCREMENTS;
+    float new_freq_div = sys_clk_hz / (freq_hz * PWM_STEP_INCREMENTS);
+    //printf("%f", new_freq_div);
     pwm_set_clkdiv(slice_num_, new_freq_div);
 
-    float actual_freq_hz = sys_clk_hz / new_freq_div * PWM_STEP_INCREMENTS;
+    float actual_freq_hz = (sys_clk_hz / new_freq_div) * PWM_STEP_INCREMENTS;
     return actual_freq_hz;
 }
 

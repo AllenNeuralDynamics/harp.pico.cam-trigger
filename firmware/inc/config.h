@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define PWM_PIN (23)
+// Printf on gpio pin 0
+#define PWM_PIN (2)
+#define SYNC_PIN (5)
 
 #endif // CONFIG_H

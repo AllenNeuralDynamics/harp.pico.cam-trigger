@@ -5,6 +5,7 @@
 #include <hardware/pwm.h>
 #include <hardware/clocks.h>
 #include <cmath>
+#include <cstdio>
 
 
 /**
@@ -57,7 +58,7 @@ private:
     uint duty_cycle_; /// The current duty cycle setting.
 
     // Constants
-    static const uint PWM_STEP_INCREMENTS = 100;
+    static const uint16_t PWM_STEP_INCREMENTS = 50000;
     static const uint DEFAULT_PWM_FREQ_HZ = 200;
 };
 
