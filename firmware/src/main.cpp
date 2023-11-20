@@ -32,9 +32,9 @@ const size_t reg_count = 3;
 #pragma pack(push, 1)
 struct app_regs_t
 {
-    volatile uint8_t pwm_state;  // app register 0
-    volatile float pwm_freq; // app register 1
-    volatile float duty_cycle; // app register 2
+    volatile uint8_t pwm_state;  // device register 32
+    volatile float pwm_freq; // device register 33
+    volatile float duty_cycle; // device register 34
 } app_regs;
 #pragma pack(pop)
 
@@ -49,27 +49,40 @@ RegSpecs app_reg_specs[reg_count]
 // Create reg handler functions.
 void set_pwm_state(msg_t& msg)
 {
-    app_regs.pwm_state = msg.payload_as_uint8();
+    HarpCore::copy_msg_payload_to_register(msg);
     if (app_regs.pwm_state)
+    {
         pwm_.enable_output();
+        printf("enabling pwm\r\n");
+    }
     else
+    {
+        printf("disabling pwm\r\n");
         pwm_.disable_output();
-    HarpCore::write_reg_generic(msg);
+    }
+    if (!HarpCore::is_muted())
+        HarpCore::send_harp_reply(WRITE, 0x32); // reply to complete transaction.
 }
 
 void set_pwm_frequency_hz(msg_t& msg)
 {
-    float& frequency_hz = msg.payload_as_float();
-    app_regs.pwm_freq = pwm_.set_frequency(frequency_hz);
-    HarpCore::write_reg_generic(msg);
+    HarpCore::copy_msg_payload_to_register(msg); // update app_regs.pwm_freq.
+    printf("new pwm freq: %f\r\n", app_regs.pwm_freq);
+    // Update the register with what the device is actually capable of doing.
+    app_regs.pwm_freq = pwm_.set_frequency(app_regs.pwm_freq);
+    if (!HarpCore::is_muted())
+        HarpCore::send_harp_reply(WRITE, 0x33); // reply to complete transaction.
 }
 
 // Set duty cycle as a float from 0.0 to 1.0
 void set_duty_cycle_percentage(msg_t& msg)
 {
-    float& normalized_duty_cycle = msg.payload_as_float();
-    app_regs.duty_cycle = pwm_.set_duty_cycle(normalized_duty_cycle);
-    HarpCore::write_reg_generic(msg);
+    HarpCore::copy_msg_payload_to_register(msg); // update app_regs.duty_cycle.
+    printf("new duty cycle: %f\r\n", app_regs.duty_cycle);
+    // Update the register with what the device is actually capable of doing.
+    app_regs.duty_cycle = pwm_.set_duty_cycle(app_regs.duty_cycle);
+    if (!HarpCore::is_muted())
+        HarpCore::send_harp_reply(WRITE, 0x34); // reply to complete transaction.
 }
 
 // Define register read-and-write handler functions.
@@ -87,6 +100,7 @@ void app_reset()
     app_regs.pwm_freq = pwm_.set_frequency(200.0f); // Set a default frequency.
     app_regs.duty_cycle = pwm_.set_duty_cycle(0.5f);
     pwm_.disable_output();
+    printf("device is reset.\r\n");
 }
 
 void update_app_state()

@@ -5,7 +5,9 @@
 #include <hardware/pwm.h>
 #include <hardware/clocks.h>
 #include <cmath>
-#include <cstdio>
+#ifdef DEBUG
+    #include <cstdio> // for printf
+#endif
 
 
 /**
@@ -41,21 +43,31 @@ public:
      * \brief enable the pwm output
      * \note inline
      */
-    void enable_output(void)
-    {pwm_set_chan_level(slice_num_, gpio_channel_, duty_cycle_);}
+    inline void enable_output()
+    {
+        pwm_enabled_ = true;
+        pwm_set_chan_level(slice_num_, gpio_channel_, duty_cycle_);
+    }
 
     /**
      * \brief disable the pwm output by setting duty cycle to 0.
      * \note inline.
      */
-    void disable_output(void)
-    {pwm_set_chan_level(slice_num_, gpio_channel_, 0);}
+    inline void disable_output()
+    {
+        // We disable by setting the duty cycle to zero because disabling the
+        // PWM peripheral leaves the GPIO pin in the previous state, which
+        // could be 1.
+        pwm_enabled_ = false;
+        pwm_set_chan_level(slice_num_, gpio_channel_, 0);
+    }
 
 private:
     uint pwm_pin_;
     uint slice_num_;
     uint gpio_channel_;
     uint duty_cycle_; /// The current duty cycle setting.
+    bool pwm_enabled_;
 
     // Constants
     static const uint16_t PWM_STEP_INCREMENTS = 50000;
