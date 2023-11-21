@@ -46,6 +46,7 @@ public:
     inline void enable_output()
     {
         pwm_enabled_ = true;
+        // Apply current duty cycle.
         pwm_set_chan_level(slice_num_, gpio_channel_, duty_cycle_);
     }
 
@@ -71,7 +72,7 @@ private:
 
     // Constants
     static const uint16_t PWM_STEP_INCREMENTS = 50000;
-    static const uint DEFAULT_PWM_FREQ_HZ = 200;
+    static const float DEFAULT_PWM_FREQ_HZ;
 };
 
 #endif // PWM_H
