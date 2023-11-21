@@ -61,7 +61,7 @@ void set_pwm_state(msg_t& msg)
         pwm_.disable_output();
     }
     if (!HarpCore::is_muted())
-        HarpCore::send_harp_reply(WRITE, 0x32); // reply to complete transaction.
+        HarpCore::send_harp_reply(WRITE, msg.header.address);
 }
 
 void set_pwm_frequency_hz(msg_t& msg)
@@ -71,7 +71,7 @@ void set_pwm_frequency_hz(msg_t& msg)
     // Update the register with what the device is actually capable of doing.
     app_regs.pwm_freq = pwm_.set_frequency(app_regs.pwm_freq);
     if (!HarpCore::is_muted())
-        HarpCore::send_harp_reply(WRITE, 0x33); // reply to complete transaction.
+        HarpCore::send_harp_reply(WRITE, msg.header.address);
 }
 
 // Set duty cycle as a float from 0.0 to 1.0
@@ -82,7 +82,7 @@ void set_duty_cycle_percentage(msg_t& msg)
     // Update the register with what the device is actually capable of doing.
     app_regs.duty_cycle = pwm_.set_duty_cycle(app_regs.duty_cycle);
     if (!HarpCore::is_muted())
-        HarpCore::send_harp_reply(WRITE, 0x34); // reply to complete transaction.
+        HarpCore::send_harp_reply(WRITE, msg.header.address);
 }
 
 // Define register read-and-write handler functions.
@@ -92,7 +92,6 @@ RegFnPair reg_handler_fns[reg_count]
     {&HarpCore::read_reg_generic, &set_pwm_frequency_hz},
     {&HarpCore::read_reg_generic, &set_duty_cycle_percentage}
 };
-
 
 void app_reset()
 {
@@ -108,7 +107,6 @@ void update_app_state()
     // update here!
     // If app registers update their states outside the read/write handler
     // functions, update them here.
-    // (Called inside run() function.)
 }
 
 // Create Harp App.
@@ -127,7 +125,7 @@ int main()
 // Init Synchronizer.
     HarpSynchronizer& sync = HarpSynchronizer::init(uart1, SYNC_PIN);
 #ifdef DEBUG
-    stdio_uart_init_full(uart0, 921600, 0, -1); // use uart1 tx only.
+    stdio_uart_init_full(uart0, 921600, STDOUT_PIN, -1); // use uart1 tx only.
     printf("Hello, from an RP2040!\r\n");
 #endif
     app_reset();
