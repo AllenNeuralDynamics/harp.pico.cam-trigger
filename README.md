@@ -59,3 +59,7 @@ After this point, you can invoke the auto-generated Makefile with `make`
 
 Successful compilation will produce a *.uf2* file.
 See the *Flashing the Firmware* section (top of this README) for how to upload this to your device.
+
+# References
+* [Bonsai.Harp package overview](https://harp-tech.org/articles/operators.html)
+
