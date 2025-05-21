@@ -107,6 +107,9 @@ void update_app_state()
     // update here!
     // If app registers update their states outside the read/write handler
     // functions, update them here.
+    // Turn off PWM output if the pc closes the serial port connection.
+    if (HarpCore::get_op_mode() != ACTIVE)
+        pwm_.disable_output();
 }
 
 // Create Harp App.
@@ -114,7 +117,8 @@ HarpCApp& app = HarpCApp::init(who_am_i, hw_version_major, hw_version_minor,
                                assembly_version,
                                harp_version_major, harp_version_minor,
                                fw_version_major, fw_version_minor,
-                               serial_number, "Cam Trigger",
+                               serial_number, "cam-trigger",
+                               (uint8_t*)GIT_HASH,
                                &app_regs, app_reg_specs,
                                reg_handler_fns, reg_count, update_app_state,
                                app_reset);
